@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steppe Go - Кыргызское Кочевое Путешествие</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --sky-blue: #87CEEB;
+            --mountain-gray: #4A5568;
+            --steppe-gold: #D4A574;
+            --earth-brown: #8B6F47;
+            --grass-green: #6B8E23;
+            --sunset-orange: #FF8C42;
+            --night-blue: #1A2332;
+            --yurt-white: #F5F5DC;
+            --eagle-brown: #4B3621;
+        }
+
+        body {
+            font-family: 'Crimson Text', serif;
+            background: linear-gradient(180deg, var(--sky-blue) 0%, var(--steppe-gold) 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(139, 111, 71, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-header {
+            text-align: center;
+            padding: 40px 20px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .game-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 4.5rem;
+            font-weight: 700;
+            color: var(--night-blue);
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .game-subtitle {
+            font-size: 1.4rem;
+            color: var(--earth-brown);
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        .screen {
+            background: rgba(245, 245, 220, 0.95);
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 3px solid var(--earth-brown);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 2px,
+                rgba(139, 111, 71, 0.03) 2px,
+                rgba(139, 111, 71, 0.03) 4px
+            );
+            pointer-events: none;
+        }
+
+        .start-screen {
+            text-align: center;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .start-description {
+            font-size: 1.3rem;
+            line-height: 2;
+            color: var(--mountain-gray);
+            margin: 30px 0;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cultural-info {
+            background: linear-gradient(135deg, var(--grass-green) 0%, var(--earth-brown) 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .cultural-info h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .cultural-info p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        button {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            padding: 18px 45px;
+            background: linear-gradient(135deg, var(--sunset-orange) 0%, var(--earth-brown) 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(255, 140, 66, 0.4);
+            font-weight: 600;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 140, 66, 0.6);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--grass-green);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateX(5px);
+        }
+
+        .stat-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            color: var(--mountain-gray);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .stat-bar {
+            width: 100%;
+            height: 25px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stat-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--grass-green), var(--sunset-orange));
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .journey-display {
+            background: linear-gradient(135deg, rgba(135, 206, 235, 0.3), rgba(212, 165, 116, 0.3));
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 2px dashed var(--earth-brown);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .journey-progress {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            color: var(--mountain-gray);
+            margin-bottom: 10px;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .landscape-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .landscape-background {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+        }
+
+        .mountain {
+            width: 0;
+            height: 0;
+            border-left: 60px solid transparent;
+            border-right: 60px solid transparent;
+            border-bottom: 100px solid var(--mountain-gray);
+            opacity: 0.4;
+            animation: mountainSlide 20s linear infinite;
+        }
+
+        .mountain:nth-child(2) {
+            border-bottom-color: var(--earth-brown);
+            opacity: 0.3;
+            animation-delay: -5s;
+        }
+
+        .mountain:nth-child(3) {
+            border-bottom-color: var(--mountain-gray);
+            opacity: 0.5;
+            transform: scale(0.8);
+            animation-delay: -10s;
+        }
+
+        @keyframes mountainSlide {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-200px); }
+        }
+
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(to bottom, var(--grass-green), var(--earth-brown));
+            border-radius: 50% 50% 0 0;
+        }
+
+        .grass {
+            position: absolute;
+            bottom: 35px;
+            width: 100%;
+            height: 30px;
+            background-image: repeating-linear-gradient(
+                90deg,
+                var(--grass-green) 0px,
+                var(--grass-green) 3px,
+                transparent 3px,
+                transparent 6px
+            );
+            animation: grassWave 3s ease-in-out infinite;
+        }
+
+        @keyframes grassWave {
+            0%, 100% { transform: skewX(0deg); }
+            50% { transform: skewX(2deg); }
+        }
+
+        .character-container {
+            position: absolute;
+            bottom: 60px;
+            left: 15%;
+            transform: translateX(-50%);
+            z-index: 3;
+            animation: horseRide 2s ease-in-out infinite;
+        }
+
+        .character-on-horse {
+            font-size: 3.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .rider {
+            font-size: 2rem;
+            margin-bottom: -10px;
+            animation: riderBounce 2s ease-in-out infinite;
+        }
+
+        .horse {
+            font-size: 3.5rem;
+        }
+
+        @keyframes horseRide {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes riderBounce {
+            0%, 100% { transform: translateY(0px) rotate(-2deg); }
+            50% { transform: translateY(-3px) rotate(2deg); }
+        }
+
+        /* Dynamic scene elements */
+        .scene-element {
+            position: absolute;
+            font-size: 3rem;
+            z-index: 2;
+            animation: elementAppear 0.8s ease-out;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
+        }
+
+        @keyframes elementAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0) translateY(20px);
+            }
+            60% {
+                transform: scale(1.2) translateY(-5px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .travelers {
+            bottom: 70px;
+            right: 25%;
+            animation: elementAppear 0.8s ease-out, wave 2s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+
+        .eagle {
+            top: 20px;
+            right: 30%;
+            font-size: 4rem;
+            animation: elementAppear 0.8s ease-out, eagleFly 4s ease-in-out infinite;
+        }
+
+        @keyframes eagleFly {
+            0%, 100% { transform: translateY(0px) rotate(-5deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .goats {
+            bottom: 65px;
+            right: 20%;
+            animation: elementAppear 0.8s ease-out, goatJump 3s ease-in-out infinite;
+        }
+
+        @keyframes goatJump {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .shepherd {
+            bottom: 70px;
+            right: 30%;
+            animation: elementAppear 0.8s ease-out;
+        }
+
+        .sheep {
+            bottom: 68px;
+            right: 40%;
+            font-size: 2.5rem;
+            animation: elementAppear 1s ease-out 0.3s both;
+        }
+
+        .yurt {
+            bottom: 65px;
+            right: 15%;
+            font-size: 4rem;
+            animation: elementAppear 1s ease-out;
+        }
+
+        .river {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(90deg, 
+                rgba(135, 206, 235, 0.6) 0%,
+                rgba(135, 206, 235, 0.8) 50%,
+                rgba(135, 206, 235, 0.6) 100%);
+            animation: riverFlow 2s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes riverFlow {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 0; }
+        }
+
+        .campfire {
+            bottom: 60px;
+            right: 35%;
+            font-size: 3.5rem;
+            animation: elementAppear 0.8s ease-out, fireFlicker 1s ease-in-out infinite;
+        }
+
+        @keyframes fireFlicker {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.9; }
+        }
+
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            font-size: 1.5rem;
+            animation: starTwinkle 2s ease-in-out infinite;
+        }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .star:nth-child(1) { top: 20%; left: 20%; animation-delay: 0s; }
+        .star:nth-child(2) { top: 30%; left: 60%; animation-delay: 0.5s; }
+        .star:nth-child(3) { top: 15%; left: 80%; animation-delay: 1s; }
+        .star:nth-child(4) { top: 40%; left: 40%; animation-delay: 1.5s; }
+        .star:nth-child(5) { top: 25%; left: 70%; animation-delay: 2s; }
+
+        .lake {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(180deg, 
+                rgba(135, 206, 235, 0.7) 0%,
+                rgba(100, 149, 237, 0.8) 100%);
+            border-radius: 50% 50% 0 0;
+            animation: lakeShimmer 3s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes lakeShimmer {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        .dust-storm {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(212, 165, 116, 0.5);
+            animation: dustSwirl 2s ease-in-out infinite;
+            z-index: 4;
+        }
+
+        @keyframes dustSwirl {
+            0%, 100% { opacity: 0.3; transform: translateX(0); }
+            50% { opacity: 0.6; transform: translateX(10px); }
+        }
+
+        .clouds {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            z-index: 1;
+        }
+
+        .cloud {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.6;
+            animation: cloudFloat 25s linear infinite;
+        }
+
+        .cloud:nth-child(1) {
+            top: 10px;
+            animation-delay: 0s;
+        }
+
+        .cloud:nth-child(2) {
+            top: 30px;
+            animation-delay: -8s;
+            font-size: 1.5rem;
+        }
+
+        .cloud:nth-child(3) {
+            top: 5px;
+            animation-delay: -15s;
+            font-size: 2.5rem;
+        }
+
+        @keyframes cloudFloat {
+            0% { left: -10%; }
+            100% { left: 110%; }
+        }
+
+        .sun {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 3rem;
+            animation: sunPulse 4s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes sunPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.9; }
+        }
+
+        .progress-path {
+            width: 90%;
+            height: 8px;
+            background: rgba(139, 111, 71, 0.3);
+            border-radius: 10px;
+            margin: 10px auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--grass-green), var(--sunset-orange));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '🐎';
+            position: absolute;
+            right: -15px;
+            top: -8px;
+            font-size: 1.5rem;
+        }
+
+        .event-illustration {
+            font-size: 4rem;
+            margin: 20px 0;
+            animation: eventAppear 0.6s ease-out;
+            filter: drop-shadow(3px 3px 6px rgba(0,0,0,0.2));
+        }
+
+        @keyframes eventAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) rotate(-10deg);
+            }
+            60% {
+                transform: scale(1.1) rotate(5deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .weather-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .rain {
+            background-image: linear-gradient(transparent 0%, transparent 50%, rgba(135, 206, 235, 0.3) 50%, rgba(135, 206, 235, 0.3) 100%);
+            background-size: 2px 10px;
+            animation: rain 0.3s linear infinite;
+        }
+
+        @keyframes rain {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 10px; }
+        }
+
+        .snow {
+            background-image: radial-gradient(circle, white 20%, transparent 20%);
+            background-size: 15px 15px;
+            animation: snow 3s linear infinite;
+        }
+
+        @keyframes snow {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 15px; }
+        }
+
+        .event-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        .event-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            color: var(--night-blue);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .event-description {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: var(--mountain-gray);
+            margin-bottom: 25px;
+        }
+
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .choice-button {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(107, 142, 35, 0.1), rgba(212, 165, 116, 0.1));
+            color: var(--night-blue);
+            border: 2px solid var(--earth-brown);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .choice-button:hover {
+            background: linear-gradient(135deg, var(--grass-green), var(--steppe-gold));
+            color: white;
+            transform: translateX(10px);
+        }
+
+        .results-screen {
+            text-align: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .result-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3rem;
+            color: var(--night-blue);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .result-message {
+            font-size: 1.4rem;
+            line-height: 2;
+            color: var(--mountain-gray);
+            margin: 25px 0;
+        }
+
+        .achievements {
+            background: linear-gradient(135deg, rgba(255, 140, 66, 0.2), rgba(139, 111, 71, 0.2));
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .achievements h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--night-blue);
+        }
+
+        .achievement-item {
+            font-size: 1.2rem;
+            padding: 10px;
+            color: var(--mountain-gray);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mountains {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(to top, var(--mountain-gray) 0%, transparent 100%);
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .landscape-icon {
+            font-size: 2rem;
+            margin: 0 10px;
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 3rem;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .screen {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mountains"></div>
+    
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">Steppe Go</h1>
+            <p class="game-subtitle">Кыргызское Кочевое Путешествие</p>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="startScreen" class="screen start-screen">
+            <p class="start-description">
+                Отправьтесь в путешествие через величественные степи и горы Кыргызстана. 
+                Вы - кочевник, путешествующий по традиционным маршрутам предков. 
+                Каждое решение влияет на ваше выживание и судьбу путешествия.
+            </p>
+
+            <div class="cultural-info">
+                <h3>🏔️ О Кочевой Культуре</h3>
+                <p>
+                    Кыргызы веками вели кочевой образ жизни, перемещаясь по степям и горам вместе 
+                    со своими стадами. Это путешествие учит терпению, уважению к природе и 
+                    мудрости предков.
+                </p>
+            </div>
+
+            <div class="landscape-icon">🏔️</div>
+            <div class="landscape-icon">🐎</div>
+            <div class="landscape-icon">🦅</div>
+            <div class="landscape-icon">🏕️</div>
+
+            <button onclick="startGame()" style="margin-top: 30px;">Начать Путешествие</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="screen hidden">
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-label">❤️ Здоровье</div>
+                    <div class="stat-bar">
+                        <div id="healthBar" class="stat-fill" style="width: 100%;">100</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">🎒 Припасы</div>
+                    <div class="stat-bar">
+                        <div id="suppliesBar" class="stat-fill" style="width: 100%;">100</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">⚡ Выносливость</div>
+                    <div class="stat-bar">
+                        <div id="staminaBar" class="stat-fill" style="width: 100%;">100</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">🍀 Удача</div>
+                    <div class="stat-bar">
+                        <div id="luckBar" class="stat-fill" style="width: 100%;">100</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="journey-display">
+                <div class="journey-progress" id="journeyProgress">Этап 1 из 10</div>
+                
+                <div class="landscape-container">
+                    <div class="sun">☀️</div>
+                    <div class="clouds">
+                        <div class="cloud">☁️</div>
+                        <div class="cloud">☁️</div>
+                        <div class="cloud">☁️</div>
+                    </div>
+                    
+                    <div class="landscape-background">
+                        <div class="mountain"></div>
+                        <div class="mountain"></div>
+                        <div class="mountain"></div>
+                    </div>
+                    
+                    <div id="sceneElements"></div>
+                    
+                    <div class="grass"></div>
+                    <div class="ground"></div>
+                    
+                    <div class="character-container">
+                        <div class="character-on-horse">
+                            <div class="rider">🧑‍🦱</div>
+                            <div class="horse">🐎</div>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-effect" id="weatherEffect"></div>
+                </div>
+                
+                <div class="progress-path">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div id="eventContainer" class="event-container">
+                <div class="event-illustration" id="eventIllustration">🏕️</div>
+                <h2 class="event-title" id="eventTitle">Начало путешествия</h2>
+                <p class="event-description" id="eventDescription">Вы начинаете свой путь...</p>
+                <div class="choices-container" id="choicesContainer"></div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="screen hidden">
+            <h2 class="result-title" id="resultTitle">Путешествие завершено!</h2>
+            <p class="result-message" id="resultMessage"></p>
+            
+            <div class="achievements">
+                <h3>📊 Итоговая Статистика</h3>
+                <div id="finalStats"></div>
+            </div>
+
+            <div class="achievements">
+                <h3>🏆 Достижения</h3>
+                <div id="achievementsList"></div>
+            </div>
+
+            <button onclick="startGame()">Начать Новое Путешествие</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            health: 100,
+            supplies: 100,
+            stamina: 100,
+            luck: 100,
+            currentStage: 0,
+            totalStages: 10,
+            decisions: []
+        };
+
+        // Events Database - Culturally authentic Kyrgyz nomadic events
+        const events = [
+            {
+                title: "Начало пути через Jайлоо",
+                description: "Вы выходите из родного аила на летнее пастбище (jайлоо). Перед вами лежит долгий путь через степи. Ваш конь выглядит немного уставшим.",
+                illustration: "🏕️",
+                weather: null,
+                scene: "jailoo", // yurt scene
+                choices: [
+                    { 
+                        text: "🐎 Дать коню отдохнуть и проверить седло", 
+                        effects: { stamina: -5, health: 5, supplies: -3 },
+                        wisdom: "Забота о коне - забота о себе"
+                    },
+                    { 
+                        text: "⚡ Немедленно отправиться в путь, пока погода хорошая", 
+                        effects: { stamina: -10, supplies: -5 },
+                        wisdom: "Поспешность может быть опасной"
+                    },
+                    { 
+                        text: "🏕️ Посоветоваться со старейшинами о лучшем маршруте", 
+                        effects: { luck: 10, stamina: -3 },
+                        wisdom: "Мудрость старших бесценна"
+                    }
+                ]
+            },
+            {
+                title: "Встреча с путниками",
+                description: "На перевале вы встречаете других путников. Они выглядят измученными и просят поделиться припасами.",
+                illustration: "🤝",
+                weather: null,
+                scene: "travelers",
+                choices: [
+                    { 
+                        text: "🤝 Щедро поделиться едой и водой", 
+                        effects: { supplies: -15, luck: 15, health: 5 },
+                        wisdom: "Щедрость возвращается добром"
+                    },
+                    { 
+                        text: "📦 Дать немного, сохраняя запасы", 
+                        effects: { supplies: -5, luck: 5 },
+                        wisdom: "Баланс между добротой и осторожностью"
+                    },
+                    { 
+                        text: "🚫 Извиниться и продолжить путь", 
+                        effects: { luck: -10 },
+                        wisdom: "Эгоизм приносит одиночество"
+                    }
+                ]
+            },
+            {
+                title: "Горный перевал Ала-Бел",
+                description: "Впереди крутой горный перевал. Облака сгущаются, может начаться буря. Подъем будет трудным.",
+                illustration: "⛰️",
+                weather: "rain",
+                scene: "mountains",
+                choices: [
+                    { 
+                        text: "🏔️ Подняться немедленно, пока не началась буря", 
+                        effects: { stamina: -20, health: -10, supplies: -5 },
+                        wisdom: "Риск может окупиться"
+                    },
+                    { 
+                        text: "⛺ Разбить лагерь и переждать непогоду", 
+                        effects: { stamina: 10, supplies: -10 },
+                        wisdom: "Терпение - добродетель кочевника"
+                    },
+                    { 
+                        text: "🗺️ Поискать обходной путь по долине", 
+                        effects: { stamina: -15, supplies: -15, luck: -5 },
+                        wisdom: "Не всегда стоит избегать трудностей"
+                    }
+                ]
+            },
+            {
+                title: "Орел охотник",
+                description: "Вы замечаете беркута, который кружит над степью. Старые кочевники говорили, что орлы приносят удачу тем, кто их уважает.",
+                illustration: "🦅",
+                weather: null,
+                scene: "eagle",
+                choices: [
+                    { 
+                        text: "🦅 Остановиться и наблюдать за орлом с почтением", 
+                        effects: { luck: 15, stamina: -5 },
+                        wisdom: "Природа награждает внимательных"
+                    },
+                    { 
+                        text: "🎯 Попытаться приручить орла для охоты", 
+                        effects: { luck: -10, stamina: -15, health: -10 },
+                        wisdom: "Не все можно контролировать"
+                    },
+                    { 
+                        text: "➡️ Продолжить путь, не обращая внимания", 
+                        effects: { stamina: -5 },
+                        wisdom: "Знаки судьбы легко упустить"
+                    }
+                ]
+            },
+            {
+                title: "Бурная река",
+                description: "Перед вами быстрая горная река. Обычная переправа затоплена талыми водами. Вам нужно перебраться на другой берег.",
+                illustration: "🌊",
+                weather: null,
+                scene: "river",
+                choices: [
+                    { 
+                        text: "🌊 Переправиться вброд на коне", 
+                        effects: { health: -15, stamina: -10, supplies: -10 },
+                        wisdom: "Смелость требует осторожности"
+                    },
+                    { 
+                        text: "🪵 Построить простой плот из бревен", 
+                        effects: { stamina: -20, supplies: 5 },
+                        wisdom: "Труд окупается безопасностью"
+                    },
+                    { 
+                        text: "🗺️ Идти вдоль реки в поисках моста", 
+                        effects: { stamina: -15, supplies: -15, health: 5 },
+                        wisdom: "Терпение лучше риска"
+                    }
+                ]
+            },
+            {
+                title: "Ночь в степи",
+                description: "Наступает ночь. Температура падает. Вы можете разбить лагерь или продолжить путь под звездами.",
+                illustration: "🌙",
+                weather: null,
+                scene: "night",
+                choices: [
+                    { 
+                        text: "🔥 Развести костер и устроить теплый лагерь", 
+                        effects: { health: 10, stamina: 15, supplies: -10 },
+                        wisdom: "Отдых восстанавливает силы"
+                    },
+                    { 
+                        text: "⭐ Продолжить путь, ориентируясь по звездам", 
+                        effects: { stamina: -15, health: -5, luck: 5 },
+                        wisdom: "Звезды - компас кочевника"
+                    },
+                    { 
+                        text: "🏕️ Спать без костра, экономя ресурсы", 
+                        effects: { health: -10, supplies: 5 },
+                        wisdom: "Экономия не всегда мудра"
+                    }
+                ]
+            },
+            {
+                title: "Стадо диких коз",
+                description: "Вы замечаете стадо горных козлов (теке). Они могут дать ценное мясо, но охота в горах опасна.",
+                illustration: "🐐",
+                weather: null,
+                scene: "goats",
+                choices: [
+                    { 
+                        text: "🏹 Осторожно попытаться охотиться", 
+                        effects: { supplies: 20, stamina: -10, luck: -5 },
+                        wisdom: "Охота - древний навык выживания"
+                    },
+                    { 
+                        text: "👀 Просто наблюдать и идти дальше", 
+                        effects: { luck: 5, stamina: -5 },
+                        wisdom: "Не каждый шанс нужно использовать"
+                    },
+                    { 
+                        text: "📸 Запомнить место для будущих охотников", 
+                        effects: { luck: 10 },
+                        wisdom: "Знание места - ценный ресурс"
+                    }
+                ]
+            },
+            {
+                title: "Встреча с чабаном",
+                description: "Вы встречаете пожилого чабана с отарой овец. Он приглашает вас разделить кумыс и лепешки в его юрте.",
+                illustration: "🐑",
+                weather: null,
+                scene: "shepherd",
+                choices: [
+                    { 
+                        text: "🏕️ С благодарностью принять гостеприимство", 
+                        effects: { health: 15, stamina: 15, supplies: 10, luck: 10 },
+                        wisdom: "Гостеприимство - священная традиция"
+                    },
+                    { 
+                        text: "💬 Побеседовать, но отказаться от еды", 
+                        effects: { luck: 5, stamina: 5 },
+                        wisdom: "Общение тоже ценно"
+                    },
+                    { 
+                        text: "⏩ Вежливо отказаться и спешить дальше", 
+                        effects: { stamina: -5, luck: -5 },
+                        wisdom: "Спешка лишает радости"
+                    }
+                ]
+            },
+            {
+                title: "Песчаная буря",
+                description: "Внезапно начинается сильная песчаная буря. Видимость падает до нескольких метров. Ваш конь беспокоится.",
+                illustration: "🌪️",
+                weather: "sand",
+                scene: "storm",
+                choices: [
+                    { 
+                        text: "🧣 Укрыться, завернувшись в шырдак", 
+                        effects: { health: 5, stamina: -10, supplies: -5 },
+                        wisdom: "Терпение переживет бурю"
+                    },
+                    { 
+                        text: "🐎 Довериться коню найти путь", 
+                        effects: { health: -10, stamina: -15, luck: 15 },
+                        wisdom: "Конь знает дорогу домой"
+                    },
+                    { 
+                        text: "🏃 Быстро идти по памяти до убежища", 
+                        effects: { health: -15, stamina: -20, supplies: -10 },
+                        wisdom: "Слепая спешка опасна"
+                    }
+                ]
+            },
+            {
+                title: "Священное озеро Иссык-Куль",
+                description: "Вы достигли берегов священного озера. Местные говорят, что его воды обладают целебной силой. Путешествие почти завершено.",
+                illustration: "🏞️",
+                weather: null,
+                scene: "lake",
+                choices: [
+                    { 
+                        text: "🌊 Искупаться и набрать целебной воды", 
+                        effects: { health: 20, stamina: 20, luck: 15 },
+                        wisdom: "Природа исцеляет тело и дух"
+                    },
+                    { 
+                        text: "🙏 Помолиться духам озера в благодарность", 
+                        effects: { luck: 20, health: 10 },
+                        wisdom: "Благодарность приносит благословение"
+                    },
+                    { 
+                        text: "📍 Отметить место на карте и идти дальше", 
+                        effects: { stamina: -5, luck: 5 },
+                        wisdom: "Знание мест передается поколениям"
+                    }
+                ]
+            }
+        ];
+
+        // Update stats display
+        function updateStats() {
+            const stats = ['health', 'supplies', 'stamina', 'luck'];
+            stats.forEach(stat => {
+                const value = Math.max(0, Math.min(100, gameState[stat]));
+                gameState[stat] = value;
+                const bar = document.getElementById(`${stat}Bar`);
+                bar.style.width = `${value}%`;
+                bar.textContent = value;
+                
+                // Color coding
+                if (value < 30) {
+                    bar.style.background = 'linear-gradient(90deg, #dc2626, #ef4444)';
+                } else if (value < 60) {
+                    bar.style.background = 'linear-gradient(90deg, #f59e0b, #fbbf24)';
+                } else {
+                    bar.style.background = 'linear-gradient(90deg, var(--grass-green), var(--sunset-orange))';
+                }
+            });
+        }
+
+        // Check if game should end
+        function checkGameEnd() {
+            if (gameState.health <= 0 || gameState.supplies <= 0 || gameState.stamina <= 0) {
+                endGame(false);
+                return true;
+            }
+            if (gameState.currentStage >= gameState.totalStages) {
+                endGame(true);
+                return true;
+            }
+            return false;
+        }
+
+        // Render dynamic scene elements
+        function renderScene(sceneType) {
+            const sceneContainer = document.getElementById('sceneElements');
+            sceneContainer.innerHTML = '';
+
+            switch(sceneType) {
+                case 'jailoo':
+                    sceneContainer.innerHTML = `
+                        <div class="scene-element yurt">🏕️</div>
+                    `;
+                    break;
+                
+                case 'travelers':
+                    sceneContainer.innerHTML = `
+                        <div class="scene-element travelers">👥</div>
+                    `;
+                    break;
+                
+                case 'mountains':
+                    // Mountains are already in background, no extra elements needed
+                    break;
+                
+                case 'eagle':
+                    sceneContainer.innerHTML = `
+                        <div class="scene-element eagle">🦅</div>
+                    `;
+                    break;
+                
+                case 'river':
+                    sceneContainer.innerHTML = `
+                        <div class="river"></div>
+                    `;
+                    break;
+                
+                case 'night':
+                    sceneContainer.innerHTML = `
+                        <div class="stars">
+                            <div class="star">⭐</div>
+                            <div class="star">⭐</div>
+                            <div class="star">⭐</div>
+                            <div class="star">⭐</div>
+                            <div class="star">⭐</div>
+                        </div>
+                        <div class="scene-element campfire">🔥</div>
+                    `;
+                    break;
+                
+                case 'goats':
+                    sceneContainer.innerHTML = `
+                        <div class="scene-element goats">🐐</div>
+                        <div class="scene-element goats" style="bottom: 70px; right: 28%; animation-delay: 0.5s;">🐐</div>
+                        <div class="scene-element goats" style="bottom: 63px; right: 35%; animation-delay: 1s;">🐐</div>
+                    `;
+                    break;
+                
+                case 'shepherd':
+                    sceneContainer.innerHTML = `
+                        <div class="scene-element shepherd">🧔</div>
+                        <div class="scene-element sheep">🐑</div>
+                        <div class="scene-element sheep" style="bottom: 65px; right: 45%; animation-delay: 0.5s;">🐑</div>
+                        <div class="scene-element sheep" style="bottom: 70px; right: 35%; animation-delay: 0.8s;">🐑</div>
+                        <div class="scene-element yurt">🏕️</div>
+                    `;
+                    break;
+                
+                case 'storm':
+                    sceneContainer.innerHTML = `
+                        <div class="dust-storm"></div>
+                    `;
+                    break;
+                
+                case 'lake':
+                    sceneContainer.innerHTML = `
+                        <div class="lake"></div>
+                    `;
+                    break;
+                
+                default:
+                    // Default steppe scene
+                    break;
+            }
+        }
+
+        // Display event
+        function displayEvent() {
+            if (checkGameEnd()) return;
+
+            const event = events[gameState.currentStage];
+            
+            // Update event details
+            document.getElementById('eventTitle').textContent = event.title;
+            document.getElementById('eventDescription').textContent = event.description;
+            document.getElementById('eventIllustration').textContent = event.illustration;
+            document.getElementById('journeyProgress').textContent = 
+                `Этап ${gameState.currentStage + 1} из ${gameState.totalStages}`;
+
+            // Update progress bar
+            const progressPercent = ((gameState.currentStage + 1) / gameState.totalStages) * 100;
+            document.getElementById('progressFill').style.width = `${progressPercent}%`;
+
+            // Render scene elements
+            renderScene(event.scene);
+
+            // Apply weather effect
+            const weatherEffect = document.getElementById('weatherEffect');
+            weatherEffect.className = 'weather-effect';
+            if (event.weather === 'rain') {
+                weatherEffect.classList.add('rain');
+            } else if (event.weather === 'sand') {
+                weatherEffect.style.background = 'rgba(212, 165, 116, 0.4)';
+                weatherEffect.style.animation = 'none';
+            } else {
+                weatherEffect.style.background = 'transparent';
+            }
+
+            // Update time of day for night events
+            const sun = document.querySelector('.sun');
+            if (event.scene === 'night') {
+                sun.textContent = '🌙';
+                sun.style.right = '30px';
+            } else {
+                sun.textContent = '☀️';
+            }
+
+            const choicesContainer = document.getElementById('choicesContainer');
+            choicesContainer.innerHTML = '';
+
+            event.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.className = 'choice-button';
+                button.textContent = choice.text;
+                button.onclick = () => makeChoice(choice, event.title);
+                choicesContainer.appendChild(button);
+            });
+        }
+
+        // Make choice
+        function makeChoice(choice, eventTitle) {
+            // Apply effects
+            for (let stat in choice.effects) {
+                gameState[stat] += choice.effects[stat];
+            }
+
+            // Record decision
+            gameState.decisions.push({
+                event: eventTitle,
+                choice: choice.text,
+                wisdom: choice.wisdom
+            });
+
+            updateStats();
+            gameState.currentStage++;
+
+            // Small delay for better UX
+            setTimeout(() => {
+                displayEvent();
+            }, 300);
+        }
+
+        // End game
+        function endGame(success) {
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.remove('hidden');
+
+            let title, message;
+            if (success) {
+                if (gameState.health > 70 && gameState.supplies > 50) {
+                    title = "🏆 Триумфальное завершение!";
+                    message = "Вы успешно завершили путешествие! Ваша мудрость, терпение и уважение к традициям предков привели вас к успеху. Вы настоящий потомок кочевников!";
+                } else if (gameState.health > 40) {
+                    title = "✅ Путешествие завершено";
+                    message = "Вы достигли цели, хотя путь был трудным. Вы многому научились о жизни кочевников и важности каждого решения.";
+                } else {
+                    title = "😅 Выживание";
+                    message = "Вы едва завершили путешествие. Путь был полон испытаний, и вы выжили, но впереди еще много уроков.";
+                }
+            } else {
+                title = "💔 Путешествие прервано";
+                if (gameState.health <= 0) {
+                    message = "Ваше здоровье истощилось. Степь научила вас, что нужно лучше заботиться о себе. Попробуйте снова и будьте мудрее.";
+                } else if (gameState.supplies <= 0) {
+                    message = "У вас закончились припасы. Кочевая жизнь требует тщательного планирования ресурсов. Попробуйте еще раз.";
+                } else {
+                    message = "Ваша выносливость иссякла. Помните, что даже самым сильным кочевникам нужен отдых. Начните новое путешествие.";
+                }
+            }
+
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultMessage').textContent = message;
+
+            // Final stats
+            const finalStats = document.getElementById('finalStats');
+            finalStats.innerHTML = `
+                <div class="achievement-item">❤️ Здоровье: ${gameState.health}/100</div>
+                <div class="achievement-item">🎒 Припасы: ${gameState.supplies}/100</div>
+                <div class="achievement-item">⚡ Выносливость: ${gameState.stamina}/100</div>
+                <div class="achievement-item">🍀 Удача: ${gameState.luck}/100</div>
+                <div class="achievement-item">📍 Этапов пройдено: ${gameState.currentStage}/${gameState.totalStages}</div>
+            `;
+
+            // Achievements
+            const achievements = [];
+            if (success) achievements.push("✅ Завершил путешествие");
+            if (gameState.health >= 80) achievements.push("💪 Крепкое здоровье");
+            if (gameState.luck >= 80) achievements.push("🍀 Благословение судьбы");
+            if (gameState.supplies >= 70) achievements.push("📦 Мудрый управитель ресурсов");
+            
+            const wisdomDecisions = gameState.decisions.filter(d => 
+                d.wisdom.includes("бесценна") || 
+                d.wisdom.includes("добродетель") ||
+                d.wisdom.includes("священная")
+            );
+            if (wisdomDecisions.length >= 3) achievements.push("🧠 Ученик мудрости");
+
+            const achievementsList = document.getElementById('achievementsList');
+            achievementsList.innerHTML = achievements.length > 0 
+                ? achievements.map(a => `<div class="achievement-item">${a}</div>`).join('')
+                : '<div class="achievement-item">Продолжайте путешествие для новых достижений</div>';
+        }
+
+        // Start game
+        function startGame() {
+            gameState = {
+                health: 100,
+                supplies: 100,
+                stamina: 100,
+                luck: 100,
+                currentStage: 0,
+                totalStages: 10,
+                decisions: []
+            };
+
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+
+            updateStats();
+            displayEvent();
+        }
+    </script>
+</body>
+</html>
